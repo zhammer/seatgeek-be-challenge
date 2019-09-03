@@ -3,62 +3,79 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
 	"strings"
 )
 
-type Client struct {
-	name   string
-	port   string
-	logger *Logger
-	conn   net.Conn
+type Client interface {
+	Send(message string) (string, error)
 }
 
-func (c *Client) Connect() error {
-	c.logger.Infof("Client [%s] connecting to port [%s]", c.name, c.port)
+type TcpClient struct {
+	port   string
+	conn   net.Conn
+	logger *Logger
+}
+
+func (c *TcpClient) connect() error {
+	c.logger.Debugf("Client connecting to port [%s]", c.port)
 	conn, err := net.Dial("tcp", c.port)
 	if err != nil {
-		c.logger.Errorf("Client [%s] found error while connecting to port [%s]: %v", c.name, c.port, err)
+		c.logger.Errorf("Client found error while connecting to port [%s]: %v", c.port, err)
 		return err
 	}
 	c.conn = conn
 	return nil
 }
 
-func (c *Client) Disconnect() error {
+func (c *TcpClient) disconnect() error {
 	err := c.conn.Close()
 	if err != nil {
-		c.logger.Errorf("Client [%s] found error while disconnecting from port [%s]: %v", c.name, c.port, err)
+		c.logger.Errorf("Client found error while disconnecting from port [%s]: %v", c.port, err)
 	}
 	return err
 }
 
-func (c *Client) Send(message string) (string, error) {
-	c.logger.Debugf("Sending message [%s] to client [%s] on port [%s]", message, c.name, c.port)
+func (c *TcpClient) Send(message string) (string, error) {
+	c.logger.Debugf("Sending message [%s] to client on port [%s]", message, c.port)
 	_, err := fmt.Fprintln(c.conn, message)
-	if err != nil {
-		return "", fmt.Errorf("client [%s] found error while writing to socket at [%s]: %v", c.name, c.port, err)
+	if err == io.EOF {
+		c.logger.Debugf("client on port [%s] closed connection", c.port)
+		return "", nil
 	}
-
 	if err != nil {
-		return "", fmt.Errorf("client [%s] found error while flushing socket at [%s]: %v", c.name, c.port, err)
+		return "", fmt.Errorf("client found error while writing to socket at [%s]: %v", c.port, err)
 	}
 
 	reader := bufio.NewReader(c.conn)
+	c.logger.Debugf("Reading response from port [%s]", c.port)
 	response, err := reader.ReadString('\n')
+	if err == io.EOF {
+		c.logger.Debugf("client on port [%s] closed connection", c.port)
+		return "", nil
+	}
 	if err != nil {
-		return "", fmt.Errorf("client [%s] found error while reading socket at [%s]: %v", c.name, c.port, err)
+		return "", fmt.Errorf("client found error while reading socket at [%s]: %v", c.port, err)
 	}
 	responseMsg := strings.TrimRight(response, "\n")
 
-	c.logger.Debugf("received message [%s] from client [%s] on port [%s]", responseMsg, c.name, c.port)
-	return responseMsg, nil
+	c.logger.Debugf("received message [%s] from client on port [%s]", responseMsg, c.port)
+
+	return responseMsg, err
 }
 
-func NewClient(name string, port int, logger *Logger) *Client {
-	return &Client{
-		name:   name,
-		port:   fmt.Sprintf(":%d", port),
-		logger: logger,
+func NewTcpClient(port int, logger *Logger) (Client, error) {
+	host := fmt.Sprintf("localhost:%d", port)
+	conn, err := net.Dial("tcp", host)
+
+	if err != nil {
+		return nil, err
 	}
+
+	return &TcpClient{
+		fmt.Sprintf(":%d", port),
+		conn,
+		logger,
+	}, nil
 }

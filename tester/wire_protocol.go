@@ -5,22 +5,33 @@ import (
 	"strings"
 )
 
+type Verb string
+const (
+	RESERVE = Verb("RESERVE")
+	BUY     = Verb("BUY")
+	QUERY   = Verb("QUERY")
+)
+type Status string
+const (
+	OK       = Status("OK")
+	FAIL     = Status("FAIL")
+	FREE     = Status("FREE")
+	SOLD     = Status("SOLD")
+	RESERVED = Status("RESERVED")
+)
+
+var validResponses = []Status{OK, FAIL, FREE, SOLD}
+
 type Command struct {
-	verb  string
+	verb  Verb
 	seats []string
 }
-
-const (
-	RESERVE = "RESERVE"
-	BUY     = "BUY"
-	RELEASE = "RELEASE"
-)
 
 func (c Command) Serialize() string {
 	return fmt.Sprintf("%s: %s", c.verb, strings.Join(c.seats, ","))
 }
 
-func ReserveSeats(seats ...string) Command {
+func AllocateSeats(seats ...string) Command {
 	return Command{RESERVE, seats}
 }
 
@@ -28,14 +39,13 @@ func BuySeats(seats ...string) Command {
 	return Command{BUY, seats}
 }
 
-func ReleaseSeats(seats ...string) Command {
-	return Command{RELEASE, seats}
+func QuerySeat(seat string) Command {
+	return Command{QUERY, []string{seat}}
 }
 
-var string2Func = map[string]func(...string) Command{
-	RELEASE: ReleaseSeats,
+var verbFunc = map[Verb]func(...string) Command{
 	BUY:     BuySeats,
-	RESERVE: ReserveSeats,
+	RESERVE: AllocateSeats,
 }
 
 func ParseCommand(message string) (Command, error) {
@@ -45,7 +55,7 @@ func ParseCommand(message string) (Command, error) {
 		return Command{}, fmt.Errorf("expected string [%s] to follow form [VERB: PREDICATE_1,PREDICATE_N]", message)
 	}
 
-	verb := strings.ReplaceAll(verbAndPredicate[0], ": ", "")
+	verb := Verb(strings.ReplaceAll(verbAndPredicate[0], ": ", ""))
 	predicate := verbAndPredicate[1]
 
 	predicateWithoutNoise := strings.Trim(strings.ReplaceAll(predicate, ",", ""), " ")
@@ -55,10 +65,19 @@ func ParseCommand(message string) (Command, error) {
 
 	seats := strings.Split(strings.Trim(predicate, " "), ",")
 
-
-	commandConstructor := string2Func[verb]
+	commandConstructor := verbFunc[verb]
 	if commandConstructor == nil {
 		return Command{}, fmt.Errorf("cant find constructor for command [%s] in message [%s]", verb, message)
 	}
 	return commandConstructor(seats...), nil
+}
+
+func ParseResponse(response string) (Status, error) {
+	for _, r := range validResponses {
+		if r == Status(response) {
+			return r, nil
+		}
+	}
+
+	return "", fmt.Errorf("unexpected response [%s], should be one of %v", response, validResponses)
 }

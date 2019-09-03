@@ -30,7 +30,7 @@ For each message sent, the client will wait for a response code from the server.
 * The service should return `FAIL` for any unknown or invalid message it receives
 
 ### Non functional requirements
-You should feel free to write your solution in any programming language in which you have professional experience in writing production-ready code. 
+You should feel free to write your solution in any programming language  in which you have professional experience in writing production-ready code. 
 
 We would like to see as much code written by you as possible. That's why **we ask that you do not use any third-party software (e.g., libraries) apart from your chosen programming language's standard library**. If you absolutely must use some third party code, please write a sentence or two describing your motivation.
 
@@ -51,18 +51,18 @@ Together with this `INSTRUCTIONS.md` file, you should have received a tarball. I
 
 So that you can verify the correctness of your solution before submitting it to us, we provide you with an automated test harness. 
 
-To run the test suite, make sure your server is up and listening on port `8099`. Then execute the following command:
+To run the test suite, first make sure your server is up and listening on port `8099`. Then execute the following command:
 
 ```
 $ ./seatgeek-be-challenge
 ```
 
-The tool will perform various checks to test your solution's robustness and correctness.  You should make sure that all tests pass before submitting your solution to the challenge. When all tests pass, you will see a message like this:
+The tool will perform various checks to test your solution's robustness and correctness.  You should make sure that all tests pass before submitting your solution to the challenge. When all tests pass you will see a message like this:
 
 ```
 --------------------------
  ✅ TEST SUCCESSFUL ✅
---------------------------
+--------------------------```
 ```
 
 We have built several other features into the test suite you might find helpful. To see them all, execute the following command:
@@ -77,7 +77,7 @@ $ ./seatgeek-be-challenge -help
 
 We are an equal opportunity employer and value diversity at our company. We do not discriminate on the basis of race, religion, color, national origin, gender, sexual orientation, age, marital status, veteran status, or disability status.
 
-To make sure our process is as unbiased as we can make it, please ensure that you have removed any personally identifiable information (e.g., your name, website, email, Github username, etc.) from the code. We want to make sure we assess each submission on the quality of its code and only that.
+To make sure our process is as unbiased as we can make it, please ensure that you have removed any personally identifiable information (e.g. your name, website, email, Github username, etc.) from the code. We want to make sure we assess each submission on the quality of its code and only that.
 
 ### Must-Haves
 These are the requirements your submission must fulfill to be considered correct.
@@ -85,7 +85,6 @@ These are the requirements your submission must fulfill to be considered correct
 * Send us all source code for test and production, and any artifacts (build scripts, etc.)
 * Your code is something you'd be comfortable putting in production and having your team maintaining
 * Your code must pass the supplied test harness using the default parameters
-* Your code builds on the latest Ubuntu Docker image (if you need a runtime, e.g., Python, JVM or Ruby, let us know which one)
+* Your code builds on the latest Ubuntu Docker image (if you need a runtime, e.g. JVM or Ruby, let us know which one)
 * Your code is tested in some automated fashion at unit and integration levels
-* Source control history (e.g., the `.git` directory or a link to Github)
-
+* Source control history (e.g. the `.git` directory or a link to Github)

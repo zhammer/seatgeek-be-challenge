@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"os"
-	"runtime"
 	"strconv"
 )
 
@@ -22,10 +20,6 @@ func (l *Logger) Debugf(format string, v ...interface{}) {
 
 func (l *Logger) Infof(format string, v ...interface{}) {
 	l.log("INFO ", format, v...)
-}
-
-func (l *Logger) InfoBannerf(format string, v ...interface{}) {
-	l.Infof(fmt.Sprintf("\n--------------------------\n %s \n--------------------------", fmt.Sprintf(format, v...)))
 }
 
 func (l *Logger) Errorf(format string, v ...interface{}) {
@@ -45,14 +39,4 @@ func NewLogger(debug bool) *Logger {
 		debug:  debug,
 		logger: actualLogger,
 	}
-}
-
-func logPrefix() string {
-	//from https://blog.sgmansfield.com/2015/12/goroutine-ids/
-	b := make([]byte, 64)
-	b = b[:runtime.Stack(b, false)]
-	b = bytes.TrimPrefix(b, []byte("goroutine "))
-	b = b[:bytes.IndexByte(b, ' ')]
-	n, _ := strconv.ParseUint(string(b), 10, 64)
-	return fmt.Sprintf("%04d", n)
 }

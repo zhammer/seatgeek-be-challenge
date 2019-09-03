@@ -8,13 +8,12 @@ import (
 func TestSerializeCommands(t *testing.T) {
 	t.Run("Commands serialize as expected", func(t *testing.T) {
 		expectations := map[string]Command{
-			"RESERVE: A1,B11,C111": ReserveSeats("A1", "B11", "C111"),
-			"RELEASE: A1,B11,C111": ReleaseSeats("A1", "B11", "C111"),
+			"RESERVE: A1,B11,C111": AllocateSeats("A1", "B11", "C111"),
 			"BUY: A1,B11,C111":     BuySeats("A1", "B11", "C111"),
 			"BUY: ":                BuySeats(),
-			"RESERVE: ":            ReserveSeats(""),
-			"RELEASE: ,,":          ReleaseSeats("", "", ""),
-			"RELEASE: ,A1,":        ReleaseSeats("", "A1", ""),
+			"RESERVE: ":            AllocateSeats(""),
+			"QUERY: A1":            QuerySeat("A1"),
+			"QUERY: C3421231":      QuerySeat("C3421231"),
 		}
 
 		for expectedString, command := range expectations {
@@ -29,8 +28,7 @@ func TestSerializeCommands(t *testing.T) {
 func TestParseCommands(t *testing.T) {
 	t.Run("Valid commands are parsed as expected", func(t *testing.T) {
 		expectations := map[string]Command{
-			"RESERVE: A1,B11,C111": ReserveSeats("A1", "B11", "C111"),
-			"RELEASE: A1,B11,C111": ReleaseSeats("A1", "B11", "C111"),
+			"RESERVE: A1,B11,C111": AllocateSeats("A1", "B11", "C111"),
 			"BUY: A1,B11,C111":     BuySeats("A1", "B11", "C111"),
 		}
 
@@ -69,12 +67,49 @@ func TestParseCommands(t *testing.T) {
 			"BUY: ",
 			"RESERVE: ",
 			"RELEASE: ,,",
+			"OK",
+			"FAIL",
 		}
 
 		for _, actualString := range invalidCommands {
 			actualCommand, err := ParseCommand(actualString)
 			if err == nil {
 				t.Errorf("Expected parsing string [%s] to raise error, got command [%v]", actualString, actualCommand)
+			}
+		}
+	})
+}
+
+func TestParseResponse(t *testing.T) {
+	t.Run("parse valid responses as expected", func(t *testing.T) {
+		expectations := map[string]Status{"OK": OK, "FAIL": FAIL, "FREE": FREE, "SOLD": SOLD}
+
+		for response, expectedStatus := range expectations {
+			actualStatus, err := ParseResponse(response)
+			if err != nil {
+				t.Errorf("Expected no error when parsing response [%s], got [%v]", expectedStatus, err)
+			}
+
+			if actualStatus != expectedStatus {
+				t.Errorf("Expected parsing of response [%s] to yield [%s], but got [%s]", expectedStatus, expectedStatus, actualStatus)
+			}
+		}
+	})
+
+	t.Run("parse invalid responses as expected", func(t *testing.T) {
+		expectations := []string{
+			"",
+			"banana",
+			"GONE",
+			"RELEASE",
+			"FREE:",
+			"BUY: A1,B11,C111",
+		}
+
+		for _, actualString := range expectations {
+			actualBool, err := ParseResponse(actualString)
+			if err == nil {
+				t.Errorf("Expected error when parsing response [%s], got [%v]", actualString, actualBool)
 			}
 		}
 	})
