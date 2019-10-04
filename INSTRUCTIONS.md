@@ -1,8 +1,8 @@
 # SeatGeek's Coding Challenge
 
-At SeatGeek, we do not believe in bring engineers to our offices for long and intimidating sessions of brain-teasers and "whiteboard coding" interviews. Instead, we have found that the best way to assess an engineers' skill is to get them to work on a problem and situation similar to what they would find on their day-by-day working here.
+At SeatGeek, we do not believe in bringing engineers to our offices for long and intimidating sessions of brain-teasers and "whiteboard coding" interviews. Instead, we have found that the best way to assess an engineer's skill is to get them to work on a problem and situation similar to what they would find on their day-by-day working here.
 
-The goal of this coding challenge is to have you produce code that shows us in concrete terms how you think about software engineering in your professional life. We want you to use the languages, tools, and setup that you feel most comfortable. 
+The goal of this coding challenge is to have you produce code that shows us in concrete terms how you think about software engineering in your professional life. We want you to use the languages, tools, and setup with which you feel most comfortable. 
 
 ## Functional requirements
 For this challenge, we ask you to write a service that manages the inventory component of a fictional distributed ticketing system. This scenario is an extremely simplified version of some of the challenges that our engineering teams face at SeatGeek.
